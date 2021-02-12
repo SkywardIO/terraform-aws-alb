@@ -92,6 +92,12 @@ variable "access_logs_prefix" {
   description = "The S3 log bucket prefix"
 }
 
+variable "access_logs_bucket_id" {
+  type        = string
+  default     = ""
+  description = "A bucket id to use for logging.  If this is not specified and `access_logs_enabled` is true, then a new bucket will be created"
+}
+
 variable "access_logs_enabled" {
   type        = bool
   default     = true

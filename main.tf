@@ -41,7 +41,7 @@ resource "aws_security_group_rule" "https_ingress" {
 module "access_logs" {
   source                             = "cloudposse/lb-s3-bucket/aws"
   version                            = "0.11.3"
-  enabled                            = module.this.enabled && var.access_logs_enabled
+  enabled                            = module.this.enabled && var.access_logs_enabled && var.access_logs_bucket_id == "" ? true : false
   name                               = module.this.name
   namespace                          = module.this.namespace
   stage                              = module.this.stage
@@ -57,6 +57,10 @@ module "access_logs" {
   noncurrent_version_transition_days = var.noncurrent_version_transition_days
   standard_transition_days           = var.standard_transition_days
   force_destroy                      = var.alb_access_logs_s3_bucket_force_destroy
+}
+
+locals {
+  bucket_id = var.access_logs_bucket_id != "" ? var.access_logs_bucket_id : module.access_logs.bucket_id
 }
 
 resource "aws_lb" "default" {
@@ -78,7 +82,7 @@ resource "aws_lb" "default" {
   enable_deletion_protection       = var.deletion_protection_enabled
 
   access_logs {
-    bucket  = module.access_logs.bucket_id
+    bucket  = local.bucket_id
     prefix  = var.access_logs_prefix
     enabled = var.access_logs_enabled
   }
